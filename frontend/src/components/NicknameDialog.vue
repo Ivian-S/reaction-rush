@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useApi } from '@/composables/useApi'
 
 const emit = defineEmits<{
@@ -18,6 +18,7 @@ const nickname = ref(props.initialNickname || '')
 const step = ref<'input' | 'checking' | 'confirm'>('input')
 const error = ref('')
 const dialogRef = ref<HTMLElement | null>(null)
+const inputRef = ref<HTMLInputElement | null>(null)
 
 const validationMessage = computed(() => {
   const raw = nickname.value
@@ -41,6 +42,9 @@ watch(() => props.modelValue, (val) => {
     step.value = 'input'
     error.value = ''
     document.dispatchEvent(new CustomEvent('modal-opening', { detail: true }))
+    nextTick(() => {
+      inputRef.value?.focus()
+    })
   } else {
     document.dispatchEvent(new CustomEvent('modal-opening', { detail: false }))
   }
@@ -111,12 +115,12 @@ function handleCancel() {
           <template v-if="step === 'input'">
             <p class="modal-desc">请输入昵称用于排行榜展示</p>
             <input
+              ref="inputRef"
               v-model="nickname"
               type="text"
               class="nickname-input"
               placeholder="1-12 位，支持中英文和数字"
               maxlength="12"
-              autofocus
               @keyup.enter="handleSubmit"
               aria-label="昵称输入框"
             />

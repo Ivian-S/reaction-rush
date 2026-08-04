@@ -55,10 +55,9 @@ function resetSession() {
 
 function resetWithNickname() {
   const nickname = session.nickname
-  const confirmed = session.confirmedExistingNickname
   session.sessionId = createSessionId()
   session.nickname = nickname
-  session.confirmedExistingNickname = confirmed
+  session.confirmedExistingNickname = true
   session.rounds = []
   session.currentRound = 0
   session.isActive = true
