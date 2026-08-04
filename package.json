@@ -1,0 +1,13 @@
+{
+  "name": "reaction-rush",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reaction Rush - A reaction time test game",
+  "scripts": {
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:server": "pnpm --filter server dev",
+    "build:frontend": "pnpm --filter frontend build",
+    "build:server": "pnpm --filter server build",
+    "typecheck": "pnpm --filter frontend typecheck && pnpm --filter server typecheck"
+  }
+}
