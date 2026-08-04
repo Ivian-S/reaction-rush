@@ -9,6 +9,20 @@ export function createApiUrl(path: string): string {
   return `${API_BASE_URL}${normalizedPath}`
 }
 
+const DEFAULT_TIMEOUT = 5000
+
+async function fetchWithTimeout(url: string, options?: RequestInit, timeoutMs = DEFAULT_TIMEOUT): Promise<Response> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal })
+    return res
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
 const serverStatus = ref<'checking' | 'online' | 'offline'>('checking')
 const leaderboardAvg = ref<LeaderboardEntry[]>([])
 const leaderboardFastest = ref<LeaderboardEntry[]>([])
@@ -33,7 +47,7 @@ const historyFastest = computed<LeaderboardEntry | null>(() => {
 
 async function checkServerHealth(): Promise<boolean> {
   try {
-    const res = await fetch(createApiUrl('/health'))
+    const res = await fetchWithTimeout(createApiUrl('/health'), undefined, 5000)
     serverStatus.value = res.ok ? 'online' : 'offline'
     return res.ok
   } catch {
@@ -44,7 +58,7 @@ async function checkServerHealth(): Promise<boolean> {
 
 async function checkNickname(nickname: string): Promise<{ exists: boolean; nickname: string } | null> {
   try {
-    const res = await fetch(createApiUrl(`/players/exists?nickname=${encodeURIComponent(nickname)}`))
+    const res = await fetchWithTimeout(createApiUrl(`/players/exists?nickname=${encodeURIComponent(nickname)}`))
     const data: ApiResponse = await res.json()
     if (data.success && data.data) {
       return data.data as { exists: boolean; nickname: string }
@@ -57,7 +71,7 @@ async function checkNickname(nickname: string): Promise<{ exists: boolean; nickn
 
 async function submitSession(payload: unknown): Promise<SubmitResult | null> {
   try {
-    const res = await fetch(createApiUrl('/sessions'), {
+    const res = await fetchWithTimeout(createApiUrl('/sessions'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -79,7 +93,7 @@ async function fetchLeaderboard(
   limit = 10
 ): Promise<LeaderboardEntry[]> {
   try {
-    const res = await fetch(createApiUrl(`/leaderboard/${type}?limit=${limit}`))
+    const res = await fetchWithTimeout(createApiUrl(`/leaderboard/${type}?limit=${limit}`))
     const data: ApiResponse = await res.json()
     if (data.success && data.data) {
       return data.data as LeaderboardEntry[]
@@ -116,7 +130,7 @@ async function loadLeaderboards(): Promise<void> {
 
 async function clearAllData(password: string): Promise<{ success: boolean; message?: string }> {
   try {
-    const res = await fetch(createApiUrl('/leaderboard/clear'), {
+    const res = await fetchWithTimeout(createApiUrl('/leaderboard/clear'), {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password })
