@@ -3,17 +3,7 @@ import path from 'path'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') })
 
-const rawCors = process.env.CORS_ORIGINS || 'http://localhost:5173'
-
-let corsOrigins: string | string[]
-if (rawCors === '*') {
-  corsOrigins = '*'
-} else {
-  corsOrigins = rawCors
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean)
-}
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173').trim()
 
 function resolveDbHost(): string {
   const host = process.env.DB_HOST

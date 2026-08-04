@@ -7,11 +7,25 @@ import playersRouter from './routes/players.js'
 import sessionsRouter from './routes/sessions.js'
 import leaderboardRouter from './routes/leaderboard.js'
 
+const allowedOrigins = new Set(
+  config.corsOrigins
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+)
+
 const app = express()
 
 app.use(cors({
-  origin: config.corsOrigins,
-  credentials: true
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) {
+      callback(null, true)
+      return
+    }
+    callback(new Error(`Origin not allowed: ${origin}`))
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
 }))
 
 app.use(express.json())
@@ -37,7 +51,7 @@ async function bootstrap() {
     console.error('[DB] Server will start without database support')
   }
 
-  app.listen(config.port, () => {
+  app.listen(config.port, '0.0.0.0', () => {
     console.log(`[Server] Reaction Rush server running on port ${config.port}`)
   })
 }
