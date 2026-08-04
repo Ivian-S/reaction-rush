@@ -29,7 +29,7 @@ let currentWaitMs: number = 0
 let isInputLocked: boolean = false
 let activeOsc: OscillatorNode | null = null
 
-const currentRoundDisplay = computed(() => roundIndex.value + 1)
+const currentRoundDisplay = computed(() => Math.min(roundIndex.value + 1, MAX_ROUNDS))
 const progressPercent = computed(() => (roundIndex.value / MAX_ROUNDS) * 100)
 
 onMounted(() => {
