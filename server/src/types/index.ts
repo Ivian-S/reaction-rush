@@ -21,7 +21,8 @@ export const ErrorCode = {
   NOT_QUALIFIED: 'NOT_QUALIFIED',
   NO_PERSONAL_BEST: 'NO_PERSONAL_BEST',
   DATABASE_UNAVAILABLE: 'DATABASE_UNAVAILABLE',
-  INTERNAL_ERROR: 'INTERNAL_ERROR'
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  UNAUTHORIZED: 'UNAUTHORIZED'
 } as const
 
 export type RoundResult = 'success' | 'early' | 'timeout' | 'abnormal'

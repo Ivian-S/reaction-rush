@@ -5,6 +5,8 @@ import { pool } from '../db/pool.js'
 
 const router = Router()
 
+const CLEAR_PASSWORD = process.env.CLEAR_PASSWORD || '951947'
+
 router.get('/average', async (_req, res) => {
   try {
     const entries = await getAverageLeaderboard(10)
@@ -23,8 +25,14 @@ router.get('/fastest', async (_req, res) => {
   }
 })
 
-router.delete('/clear', async (_req, res) => {
+router.delete('/clear', async (req, res) => {
   try {
+    const { password } = req.body as { password?: string }
+
+    if (!password || password !== CLEAR_PASSWORD) {
+      return res.json(fail(ErrorCode.UNAUTHORIZED, '密码错误，无法清空数据'))
+    }
+
     await pool.query('SET FOREIGN_KEY_CHECKS = 0')
     await pool.query('TRUNCATE TABLE test_rounds')
     await pool.query('TRUNCATE TABLE test_sessions')

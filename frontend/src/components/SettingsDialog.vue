@@ -27,6 +27,8 @@ const {
 const api = useApi()
 const showClearConfirm = ref(false)
 const clearLoading = ref(false)
+const clearPassword = ref('')
+const passwordError = ref('')
 
 watch(() => props.modelValue, (val) => {
   if (val) {
@@ -35,6 +37,8 @@ watch(() => props.modelValue, (val) => {
   } else {
     document.dispatchEvent(new CustomEvent('modal-opening', { detail: false }))
     showClearConfirm.value = false
+    clearPassword.value = ''
+    passwordError.value = ''
   }
 })
 
@@ -68,16 +72,31 @@ function handleReset() {
 }
 
 async function handleClearConfirm() {
+  passwordError.value = ''
+  if (!clearPassword.value) {
+    passwordError.value = '请输入清空密码'
+    return
+  }
+
   clearLoading.value = true
   try {
-    const result = await api.clearAllData()
-    showClearConfirm.value = false
+    const result = await api.clearAllData(clearPassword.value)
     if (result.success) {
+      showClearConfirm.value = false
+      clearPassword.value = ''
       emit('cleared')
+    } else {
+      passwordError.value = result.message || '清空失败'
     }
   } finally {
     clearLoading.value = false
   }
+}
+
+function openClearConfirm() {
+  clearPassword.value = ''
+  passwordError.value = ''
+  showClearConfirm.value = true
 }
 </script>
 
@@ -155,7 +174,7 @@ async function handleClearConfirm() {
             <p class="danger-desc">清空所有玩家和排行榜数据，操作不可恢复。</p>
             <button
               class="danger-btn"
-              @click="showClearConfirm = true"
+              @click="openClearConfirm"
               :disabled="clearLoading"
             >{{ clearLoading ? '清空中...' : '🗑️ 清空排行榜数据' }}</button>
           </section>
@@ -166,8 +185,22 @@ async function handleClearConfirm() {
                 <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="clear-confirm-title">
                   <h3 id="clear-confirm-title" class="confirm-title">确认清空</h3>
                   <p class="confirm-message">
-                    此操作将删除所有玩家和排行榜数据，且<strong>不可恢复</strong>。确定要继续吗？
+                    此操作将删除所有玩家和排行榜数据，且<strong>不可恢复</strong>。
                   </p>
+                  <div class="password-input-wrapper">
+                    <label class="password-label">请输入清空密码：</label>
+                    <input
+                      v-model="clearPassword"
+                      type="password"
+                      class="password-input"
+                      placeholder="请输入密码"
+                      maxlength="50"
+                      @keyup.enter="handleClearConfirm"
+                      :disabled="clearLoading"
+                      ref="passwordInput"
+                    />
+                    <p v-if="passwordError" class="password-error" role="alert">{{ passwordError }}</p>
+                  </div>
                   <div class="confirm-actions">
                     <button
                       class="confirm-cancel"
@@ -570,6 +603,45 @@ async function handleClearConfirm() {
 
 .confirm-message strong {
   color: var(--color-danger);
+}
+
+.password-input-wrapper {
+  margin-bottom: 1rem;
+}
+
+.password-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.password-input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  background: var(--color-bg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  transition: border-color var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.password-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.password-error {
+  font-size: 0.85rem;
+  color: var(--color-danger);
+  margin: 0.5rem 0 0;
 }
 
 .confirm-actions {

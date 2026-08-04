@@ -114,10 +114,12 @@ async function loadLeaderboards(): Promise<void> {
   }
 }
 
-async function clearAllData(): Promise<{ success: boolean; message?: string }> {
+async function clearAllData(password: string): Promise<{ success: boolean; message?: string }> {
   try {
     const res = await fetch(createApiUrl('/leaderboard/clear'), {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
     })
     const data: ApiResponse = await res.json()
     if (data.success) {
