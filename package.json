@@ -10,6 +10,7 @@
     "build:server": "pnpm --filter server build",
     "build": "pnpm build:frontend && pnpm build:server",
     "start": "pnpm --filter server start",
+    "start:server-only": "pnpm --filter server build && pnpm --filter server start",
     "typecheck": "pnpm --filter frontend typecheck && pnpm --filter server typecheck"
   }
 }

@@ -1,0 +1,11 @@
+[build]
+builder = "nixpacks"
+
+[nixpacks]
+apps = [
+  { name = "reaction-rush" }
+]
+
+[envs]
+  PORT = "3001"
+  CORS_ORIGINS = "*"
