@@ -1,0 +1,16 @@
+backend:
+  serviceName: reaction-rush
+  path: .
+  buildCommand: pnpm install && pnpm build
+  startCommand: pnpm start
+  env:
+    - PORT=3001
+    - CORS_ORIGINS=https://reaction-rush.zeabur.app
+    - DB_HOST=请替换为Zeabur MySQL地址
+    - DB_PORT=3306
+    - DB_USER=root
+    - DB_PASSWORD=请替换为Zeabur MySQL密码
+    - DB_NAME=reaction_rush
+  ports:
+    - port: 3001
+      protocol: http

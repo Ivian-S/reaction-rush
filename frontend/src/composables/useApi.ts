@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import type { ApiResponse, LeaderboardEntry, SubmitResult } from '@/types/game'
 
-const API_BASE = '/api'
+const API_BASE = import.meta.env.VITE_API_BASE || '/api'
 
 const serverStatus = ref<'checking' | 'online' | 'offline'>('checking')
 const leaderboardAvg = ref<LeaderboardEntry[]>([])

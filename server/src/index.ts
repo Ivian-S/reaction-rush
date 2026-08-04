@@ -1,11 +1,17 @@
 import express from 'express'
 import cors from 'cors'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { config } from './config/env.js'
 import { initDatabase } from './db/init.js'
 import healthRouter from './routes/health.js'
 import playersRouter from './routes/players.js'
 import sessionsRouter from './routes/sessions.js'
 import leaderboardRouter from './routes/leaderboard.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const distPath = path.resolve(__dirname, '../../frontend/dist')
 
 const app = express()
 
@@ -16,18 +22,16 @@ app.use(cors({
 
 app.use(express.json())
 
-app.get('/', (_req, res) => {
-  res.json({
-    service: 'reaction-rush-server',
-    version: '1.0.0',
-    docs: '/api/health'
-  })
-})
-
 app.use('/api', healthRouter)
 app.use('/api/players', playersRouter)
 app.use('/api/sessions', sessionsRouter)
 app.use('/api/leaderboard', leaderboardRouter)
+
+app.use(express.static(distPath))
+
+app.get(/^(?!\/api).*/, (_req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'))
+})
 
 async function bootstrap() {
   try {

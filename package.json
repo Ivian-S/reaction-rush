@@ -8,6 +8,8 @@
     "dev:server": "pnpm --filter server dev",
     "build:frontend": "pnpm --filter frontend build",
     "build:server": "pnpm --filter server build",
+    "build": "pnpm build:frontend && pnpm build:server",
+    "start": "pnpm --filter server start",
     "typecheck": "pnpm --filter frontend typecheck && pnpm --filter server typecheck"
   }
 }
